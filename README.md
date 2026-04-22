@@ -1,95 +1,94 @@
-# MemoryNode Quickstart
+<p align="center">
+  <strong>MemoryNode</strong>
+</p>
 
-**MemoryNode is a memory layer for AI applications.** AI apps need persistent, queryable memory—otherwise every conversation starts from zero. MemoryNode gives you store-and-retrieve memory and semantic search through a single API; vectors, embeddings, and search infrastructure are handled for you.
+<p align="center">
+  <strong>Per-user memory for AI apps — store, search, and ship without running a vector database.</strong>
+</p>
 
-**Built for** developers shipping AI apps that need persistent, queryable memory (chatbots, copilots, agents).
+<p align="center">
+  <a href="https://console.memorynode.ai">Console</a>
+  ·
+  <a href="https://api.memorynode.ai">API</a>
+  ·
+  <a href="https://www.npmjs.com/package/@memorynodeai/sdk">SDK (npm)</a>
+  ·
+  <a href="./docs/TRUST.md">Trust</a>
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@memorynodeai/sdk"><img src="https://img.shields.io/npm/v/@memorynodeai/sdk?style=flat-square&color=blue" alt="npm @memorynodeai/sdk" /></a>
+  <a href="https://www.npmjs.com/package/@memorynodeai/mcp-server"><img src="https://img.shields.io/npm/v/@memorynodeai/mcp-server?style=flat-square&color=blue" alt="npm @memorynodeai/mcp-server" /></a>
+</p>
+
+---
+
+This repository is a **minimal quickstart** for the hosted MemoryNode API. Use it to verify your API key, run one script, and see add + search in under a minute.
+
+**Trust, security, and retention:** [docs/TRUST.md](./docs/TRUST.md) · [docs/SECURITY.md](./docs/SECURITY.md) · [docs/DATA_RETENTION.md](./docs/DATA_RETENTION.md)
+
+**Positioning (ICP and non-goals):** [docs/POSITIONING.md](./docs/POSITIONING.md)
+
+**SDK and HTTP details:** [@memorynodeai/sdk on npm](https://www.npmjs.com/package/@memorynodeai/sdk). This public repository stays intentionally small (quickstart + curated trust docs).
 
 ---
 
 ## Features
 
-- **Store memories** — Send facts, preferences, or conversation snippets scoped by user and optional namespace.
-- **Semantic search** — Query in natural language; get the most relevant memories back.
-- **Prompt-ready context** — One API call returns formatted context and citations for your AI prompt.
-- **API-first** — Use the REST API or the official TypeScript/JavaScript SDK.
+- **Store memories** — Text and metadata scoped by `userId` and namespace (maps to API `scope`).
+- **Semantic search** — Natural-language query over a user’s memories.
+- **Official SDK** — [`@memorynodeai/sdk`](https://www.npmjs.com/package/@memorynodeai/sdk) for Node/TypeScript backends.
+- **MCP** — For editors and agents, use [`@memorynodeai/mcp-server`](https://www.npmjs.com/package/@memorynodeai/mcp-server) or hosted MCP (see npm readme / your operator docs).
 
 ---
 
 ## Get an API key
 
-1. Sign up at **[app.memorynode.ai](https://app.memorynode.ai)**.
-2. Create a workspace and an API key in the dashboard.
-3. Use the key as the `API_KEY` environment variable when you run the quickstart.
+1. Open **[console.memorynode.ai](https://console.memorynode.ai)**.
+2. Create a project and an API key.
+3. Export it as `API_KEY` for the commands below.
 
 ---
 
-## Why MemoryNode?
+## Quickstart (this repo)
 
-- **No infrastructure** — No vector DB, embeddings pipeline, or search cluster to run or scale.
-- **Simple DX** — One SDK, clear API, config via env vars. Ship in minutes.
-- **Built for AI** — Per-user memory, semantic search, and prompt-ready context for agents and apps.
-- **Production-ready** — Hosted API, built for real workloads.
-
----
-
-## Quickstart (copy-paste runnable)
-
-**Prerequisites:** Node.js 18+
+**Prerequisites:** Node.js **20+**
 
 ```bash
-git clone https://github.com/YOUR_ORG/memorynode-quickstart.git
-cd memorynode-quickstart
+git clone https://github.com/gaurav007pimpalkar-Trinity/memorynode.git
+cd memorynode
 npm install
 export API_KEY=your_api_key_here
-export BASE_URL=https://api.memorynode.ai
 npm start
 ```
 
-Replace `YOUR_ORG` with your GitHub org or username once the repo is created. The script adds a sample memory, searches for it, and prints the results. No code to write — the repo includes `index.mjs`.
+On Windows (PowerShell):
 
-**Without cloning:** run `npm install @memorynodeai/sdk`, paste the code below into `index.mjs`, set `API_KEY` (and optionally `BASE_URL`), then `node index.mjs`.
-
----
-
-## What’s inside (`index.mjs`)
-
-```javascript
-import { MemoryNodeClient } from "@memorynodeai/sdk";
-
-const apiKey = process.env.API_KEY?.trim();
-if (!apiKey) throw new Error("Missing API_KEY. Set it with: export API_KEY=your_key");
-
-const client = new MemoryNodeClient({
-  apiKey,
-  baseUrl: process.env.BASE_URL?.trim() || "https://api.memorynode.ai",
-});
-
-async function main() {
-  await client.addMemory({
-    userId: "quickstart-user",
-    namespace: "default",
-    text: "MemoryNode quickstart ran at " + new Date().toISOString(),
-    metadata: { source: "quickstart" },
-  });
-  const results = await client.search({
-    userId: "quickstart-user",
-    namespace: "default",
-    query: "quickstart",
-    topK: 5,
-  });
-  console.log("Search results:", JSON.stringify(results, null, 2));
-}
-main().catch((err) => { console.error(err); process.exit(1); });
+```powershell
+$env:API_KEY="your_api_key_here"
+npm start
 ```
 
+The script adds a sample memory, runs search, and prints JSON. Source: [`index.mjs`](./index.mjs).
+
+**Optional:** `export BASE_URL=https://api.memorynode.ai` (default if unset).
+
 ---
 
-## Documentation
+## Try the HTTP API directly
 
-Full API reference, guides, and best practices: **[docs.memorynode.ai](https://docs.memorynode.ai)**.
+```bash
+export API_KEY=mn_live_xxx
+curl -sS -X POST "https://api.memorynode.ai/v1/memories" \
+  -H "Authorization: Bearer $API_KEY" -H "Content-Type: application/json" \
+  -d '{"userId":"user-1","scope":"default","text":"User prefers dark mode"}'
+curl -sS -X POST "https://api.memorynode.ai/v1/search" \
+  -H "Authorization: Bearer $API_KEY" -H "Content-Type: application/json" \
+  -d '{"userId":"user-1","scope":"default","query":"theme","top_k":5}'
+```
 
 ---
 
 ## License
 
-MIT.
+MIT — see [LICENSE](./LICENSE).

@@ -8,7 +8,7 @@ import { MemoryNodeClient } from "@memorynodeai/sdk";
 
 const apiKey = process.env.API_KEY?.trim();
 if (!apiKey) {
-  console.error("Error: API_KEY is required. Get a key at https://app.memorynode.ai");
+  console.error("Error: API_KEY is required. Get a key at https://console.memorynode.ai");
   console.error("Usage: API_KEY=your_key [BASE_URL=https://api.memorynode.ai] node index.mjs");
   process.exit(1);
 }
@@ -30,7 +30,7 @@ async function main() {
     text,
     metadata: { source: "memorynode-quickstart" },
   });
-  console.log("Added memory:", added?.id ?? "(see response above)");
+  console.log("Added memory:", added?.memory_id ?? "(see response above)");
 
   // Search for that memory
   const results = await client.search({
